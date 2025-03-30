@@ -60,11 +60,15 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
         ),
       );
 
-      // 메인 화면으로 이동 (아직 구현되지 않음)
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => HomeScreen()),
-      // );
+      // 임시 홈 화면으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => Scaffold(
+                  appBar: AppBar(title: const Text('둘이 정산 - 홈')),
+                  body: const Center(child: Text('로그인 성공! 홈 화면 준비 중입니다.')),
+                )),
+      );
     } catch (e) {
       // 로그인 실패 시 에러 메시지 표시
       if (!mounted) return;
