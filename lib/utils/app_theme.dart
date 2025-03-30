@@ -71,6 +71,24 @@ class AppTheme {
     ),
   );
 
+  static final InputDecoration textFieldDecoration = InputDecoration(
+    filled: true,
+    fillColor: secondaryColor,
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: BorderSide.none,
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(14),
+      borderSide: const BorderSide(color: primaryColor, width: 1),
+    ),
+    hintStyle: const TextStyle(
+      color: subTextColor,
+      fontSize: 16,
+    ),
+  );
+
   // Material 테마
   static ThemeData getTheme() {
     return ThemeData(

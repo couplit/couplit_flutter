@@ -1,6 +1,9 @@
+import 'package:couplit/pages/auth/email_login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:couplit/widgets/auth/social_login_button.dart';
 import 'package:couplit/utils/app_theme.dart';
+import 'package:flutter/services.dart';
+import 'package:couplit/pages/auth/signup_page.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -66,22 +69,19 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: size.height * 0.08),
 
                 // 소셜 로그인 버튼들
-                const Text(
-                  '로그인',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppTheme.textColor,
-                  ),
-                ),
+
                 const SizedBox(height: 24),
 
-                const SocialLoginButton(
-                  provider: 'kakao',
-                  text: '카카오 계정으로 로그인',
-                  icon: 'assets/icons/kakao_icon.png',
-                  backgroundColor: AppTheme.kakaoColor,
-                  textColor: Colors.black87,
+                GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    print("Kakao 로그인 시도");
+                  },
+                  child: Image.asset(
+                    'assets/images/kakao_login_button.png',
+                    width: double.infinity,
+                    height: 50,
+                  ),
                 ),
 
                 const SizedBox(height: 16),
@@ -100,6 +100,11 @@ class LoginScreen extends StatelessWidget {
                 OutlinedButton(
                   onPressed: () {
                     // 이메일 로그인 화면으로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const EmailLoginScreen()),
+                    );
                   },
                   child: const Text('이메일로 로그인'),
                 ),
@@ -119,6 +124,12 @@ class LoginScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         // 회원가입 페이지로 이동
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignupScreen(),
+                          ),
+                        );
                       },
                       child: const Text(
                         '회원가입',

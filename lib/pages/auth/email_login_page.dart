@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:couplit/utils/app_theme.dart';
+import 'package:couplit/services/firebase_auth_service.dart';
+import 'package:couplit/pages/auth/signup_page.dart';
 
 class EmailLoginScreen extends StatefulWidget {
   const EmailLoginScreen({super.key});
@@ -11,13 +13,119 @@ class EmailLoginScreen extends StatefulWidget {
 class _EmailLoginScreenState extends State<EmailLoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final FirebaseAuthService _authService = FirebaseAuthService();
+
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  // 로그인 처리 함수
+  Future<void> _login() async {
+    // 입력값 검증
+    if (_emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('이메일을 입력해주세요'), backgroundColor: Colors.orange));
+      return;
+    }
+
+    if (_passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('비밀번호를 입력해주세요'), backgroundColor: Colors.orange));
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Firebase Auth 로그인 요청
+      await _authService.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      // 로그인 성공 후 메인 화면으로 이동
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('로그인 성공'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // 메인 화면으로 이동 (아직 구현되지 않음)
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => HomeScreen()),
+      // );
+    } catch (e) {
+      // 로그인 실패 시 에러 메시지 표시
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('로그인 실패: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // 비밀번호 재설정 이메일 전송 함수
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('비밀번호를 재설정할 이메일을 입력해주세요'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _authService.sendPasswordResetEmail(email);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('비밀번호 재설정 이메일이 발송되었습니다. 이메일을 확인해주세요.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('비밀번호 재설정 이메일 발송 실패: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -53,10 +161,23 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 style: const TextStyle(fontSize: 16),
-                decoration: AppTheme.textFieldDecoration.copyWith(
+                decoration: const InputDecoration(
+                  filled: true,
+                  fillColor: AppTheme.secondaryColor,
                   hintText: '이메일 주소',
-                  prefixIcon: const Icon(Icons.email_outlined,
-                      color: AppTheme.subTextColor),
+                  prefixIcon:
+                      Icon(Icons.email_outlined, color: AppTheme.subTextColor),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    borderSide:
+                        BorderSide(color: AppTheme.primaryColor, width: 1),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -66,10 +187,23 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                 controller: _passwordController,
                 obscureText: !_isPasswordVisible,
                 style: const TextStyle(fontSize: 16),
-                decoration: AppTheme.textFieldDecoration.copyWith(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: AppTheme.secondaryColor,
                   hintText: '비밀번호',
                   prefixIcon: const Icon(Icons.lock_outline,
                       color: AppTheme.subTextColor),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                    borderSide:
+                        BorderSide(color: AppTheme.primaryColor, width: 1),
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _isPasswordVisible
@@ -90,9 +224,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {
-                    // 비밀번호 찾기 화면으로 이동
-                  },
+                  onPressed: _isLoading ? null : _resetPassword,
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(50, 30),
@@ -107,13 +239,17 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
 
               // 로그인 버튼
               ElevatedButton(
-                onPressed: () {
-                  // 로그인 처리 로직
-                  final email = _emailController.text;
-                  final password = _passwordController.text;
-                  print('이메일 로그인 시도: $email, $password');
-                },
-                child: const Text('로그인'),
+                onPressed: _isLoading ? null : _login,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text('로그인'),
               ),
 
               const Spacer(),
@@ -129,9 +265,17 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      // 회원가입 페이지로 이동
-                    },
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            // 회원가입 페이지로 이동
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SignupScreen(),
+                              ),
+                            );
+                          },
                     child: const Text(
                       '회원가입',
                       style: TextStyle(

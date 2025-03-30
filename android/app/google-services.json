@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "617989222905",
+    "project_id": "couplit-65965",
+    "storage_bucket": "couplit-65965.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:617989222905:android:9916c2c1d25d4b8c7b0d28",
+        "android_client_info": {
+          "package_name": "com.example.couplit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWBfwY0z2thToFuk84jeydELpBeUpm5U0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
